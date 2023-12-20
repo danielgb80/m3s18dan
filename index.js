@@ -1,8 +1,10 @@
 const express = require('express');
 const app = express();
+const cors = require('cors'); // Sin esta linea no conectara netlify al back
 app.use(express.json()); // Siempre que requiere enviar datos por POST,PUT,DELETE etc... y sean JSON se ocupa esta linea
-const port = 3000;
-
+require('dotenv').config();
+const port = process.env.PORT;
+app.use(cors());
 let platillos = [
     {
         id: 1,
@@ -36,19 +38,26 @@ app.post('/platillos', (req, res) => {
     });
 });
 
-app.put('/platillos', (req, res) => {
+app.put('/platillos/:id', (req, res) => {
     // Actualizar platillos
+    // seria buena idea, busca que exista el elemento antes de actualizar
+    let id = parseInt(req.params.id);
+    let platilloResultado = platillos.find(platillo => platillo.id === id);
+    platilloResultado.nombre = req.body.nombre;
+    platilloResultado.precio = req.body.precio;
+    platilloResultado.descripcion = req.body.descripcion;
     res.send('Actualizar platillos');
 });
 
 app.delete('/platillos/:id', (req, res) => {
     // Borrar platillos
+    // seria buena idea, busca que exista el elemento antes de eliminar
     let id = parseInt(req.params.id);
     const indice = platillos.findIndex(platillo => platillo.id === id);
     platillos.splice(indice, 1);
     res.json({
         mensaje: "Se elimino el platillo",
-        data: null
+        data: id
     });
 });
 
